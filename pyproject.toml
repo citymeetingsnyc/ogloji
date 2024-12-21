@@ -1,0 +1,24 @@
+[project]
+name = "og-loji"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "aiosqlite>=0.20.0",
+    "fastapi>=0.115.6",
+    "minio>=7.2.13",
+    "playwright>=1.49.1",
+    "pydantic-settings>=2.7.0",
+    "python-json-logger>=3.2.1",
+    "uvicorn>=0.34.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest-minio-mock>=0.4.16",
+    "pytest>=8.3.4",
+    "httpx>=0.28.1",
+    "requests>=2.32.3",
+    "imagehash>=4.3.1",
+]
