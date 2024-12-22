@@ -74,7 +74,7 @@ class Settings(BaseSettings):
 
     # Local storage configuration
     LOCAL_STORAGE_PATH: str = Field(
-        default="./images", description="Directory to store images locally"
+        default="./og-loji-images", description="Directory to store images locally"
     )
 
     LOCAL_STORAGE_CAPACITY_MB: int = Field(
