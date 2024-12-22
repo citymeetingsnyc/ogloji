@@ -1,5 +1,6 @@
 import os
 import asyncio
+from typing import List
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse
@@ -74,6 +75,11 @@ class Settings(BaseSettings):
     # Local storage configuration
     LOCAL_STORAGE_PATH: str = Field(
         default="./images", description="Directory to store images locally"
+    )
+
+    LOCAL_STORAGE_CAPACITY_MB: int = Field(
+        default=1024,
+        description="Maximum storage capacity in MB for the local image cache",
     )
 
 
@@ -167,6 +173,76 @@ async def generate_image(path: str, filename: str) -> str:
         await browser_pool.release(browser)
 
 
+def get_file_size_mb(path: str) -> float:
+    """Get file size in megabytes."""
+    return os.path.getsize(path) / (1024 * 1024)
+
+
+def get_directory_size_mb(directory: str) -> float:
+    """Get total directory size in megabytes."""
+    total_size = 0
+    for dirpath, _, filenames in os.walk(directory):
+        for f in filenames:
+            fp = os.path.join(dirpath, f)
+            total_size += os.path.getsize(fp)
+    return total_size / (1024 * 1024)
+
+
+def evict_from_local_storage(capacity_mb: float, directory: str) -> List[str]:
+    """Evict the least-recently accessed files from the given directory based on
+    access time if the total size of the directory exceeds the capacity.
+
+    Returns:
+        List of paths that were evicted.
+    """
+    # Get current directory size
+    current_size = get_directory_size_mb(directory)
+    if current_size <= capacity_mb:
+        return []
+
+    # Get all files with their access times
+    files = []
+    for dirpath, _, filenames in os.walk(directory):
+        for f in filenames:
+            fp = os.path.join(dirpath, f)
+            files.append((fp, os.path.getatime(fp)))
+
+    # Sort by access time (oldest first)
+    files.sort(key=lambda x: x[1])
+
+    evicted = []
+    for file_path, _ in files:
+        if current_size <= capacity_mb:
+            break
+        file_size = get_file_size_mb(file_path)
+        os.remove(file_path)
+        current_size -= file_size
+        evicted.append(file_path)
+
+    return evicted
+
+
+async def storage_eviction_worker():
+    """Worker that periodically checks and evicts files from local storage.
+
+    - Uses an LRU eviction strategy to evict files from local storage based on
+    access time.
+    - Only evicts files if the total size of the directory exceeds the capacity.
+    - Runs every minute.
+    """
+    settings = get_settings()
+    while True:
+        try:
+            evicted = evict_from_local_storage(
+                settings.LOCAL_STORAGE_CAPACITY_MB, settings.LOCAL_STORAGE_PATH
+            )
+            if evicted:
+                logger.info(f"Evicted {len(evicted)} files from local storage")
+        except Exception as e:
+            logger.error(f"Error in storage eviction worker: {e}")
+        await asyncio.sleep(60)  # Run every minute
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     class BucketNotFoundError(Exception):
@@ -186,8 +262,18 @@ async def lifespan(app: FastAPI):
     # Initialize our browser pool.
     await init_browser_pool()
 
+    # Start the storage eviction worker
+    worker_task = asyncio.create_task(storage_eviction_worker())
+
     # Server is running and handling requests here
     yield
+
+    # Cancel the worker task on shutdown
+    worker_task.cancel()
+    try:
+        await worker_task
+    except asyncio.CancelledError:
+        pass
 
     # Shutdown
     await browser_pool.shutdown()
@@ -214,6 +300,7 @@ async def serve_og_image(request: Request, path: str):
 
     # Check local filesystem first
     if os.path.exists(local_path):
+        os.utime(local_path, None)  # Update access time
         return FileResponse(local_path)
 
     # Generate new image
