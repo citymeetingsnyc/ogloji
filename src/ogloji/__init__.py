@@ -340,5 +340,5 @@ async def purge_og_image(req: Request, body: PurgeRequest):
     return {"message": "Images purged successfully"}
 
 
-if __name__ == "__main__":
+def main():
     uvicorn.run(app, host="0.0.0.0", port=8080)
