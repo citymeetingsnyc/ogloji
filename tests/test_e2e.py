@@ -14,9 +14,7 @@ from PIL import Image
 import os
 
 
-OG_IMAGE_FIXTURE_PATH = os.path.join(
-    os.path.dirname(__file__), "..", "og-image-fixture.png"
-)
+OG_IMAGE_FIXTURE_PATH = os.path.join(os.path.dirname(__file__), "og-image-fixture.png")
 
 
 # This is the app we're going to take screenshots of OG images from.
