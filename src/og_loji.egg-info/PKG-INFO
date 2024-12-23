@@ -1,0 +1,13 @@
+Metadata-Version: 2.1
+Name: og-loji
+Version: 0.1.0
+Summary: Add your description here
+Requires-Python: >=3.13
+Description-Content-Type: text/markdown
+Requires-Dist: aiosqlite>=0.20.0
+Requires-Dist: fastapi>=0.115.6
+Requires-Dist: minio>=7.2.13
+Requires-Dist: playwright>=1.49.1
+Requires-Dist: pydantic-settings>=2.7.0
+Requires-Dist: python-json-logger>=3.2.1
+Requires-Dist: uvicorn>=0.34.0

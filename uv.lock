@@ -315,7 +315,6 @@ dev = [
     { name = "httpx" },
     { name = "imagehash" },
     { name = "pytest" },
-    { name = "pytest-minio-mock" },
     { name = "requests" },
 ]
 
@@ -335,7 +334,6 @@ dev = [
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "imagehash", specifier = ">=4.3.1" },
     { name = "pytest", specifier = ">=8.3.4" },
-    { name = "pytest-minio-mock", specifier = ">=0.4.16" },
     { name = "requests", specifier = ">=2.32.3" },
 ]
 
@@ -511,33 +509,6 @@ wheels = [
 ]
 
 [[package]]
-name = "pytest-minio-mock"
-version = "0.4.16"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "minio" },
-    { name = "pytest" },
-    { name = "pytest-mock" },
-    { name = "validators" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/38/02/d084135a667a2a8f058210662a265f519e1da300b3a8c9d21b871f2d5d21/pytest_minio_mock-0.4.16.tar.gz", hash = "sha256:37e406edc6384243b703f85c15040f427efa519bf35a7cec19cd8ac92bca4370", size = 18447 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/3d/d0/5210d842f4e88a4ccbcdf1c94ffec37729291c9fb37d639e60ff51c03ac3/pytest_minio_mock-0.4.16-py3-none-any.whl", hash = "sha256:f97c9262b0efc572a1efbc0ed03c988880b87f4387f964140565b0d5237f1cc2", size = 13943 },
-]
-
-[[package]]
-name = "pytest-mock"
-version = "3.14.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "pytest" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/c6/90/a955c3ab35ccd41ad4de556596fa86685bf4fc5ffcc62d22d856cfd4e29a/pytest-mock-3.14.0.tar.gz", hash = "sha256:2719255a1efeceadbc056d6bf3df3d1c5015530fb40cf347c0f9afac88410bd0", size = 32814 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/f2/3b/b26f90f74e2986a82df6e7ac7e319b8ea7ccece1caec9f8ab6104dc70603/pytest_mock-3.14.0-py3-none-any.whl", hash = "sha256:0b72c38033392a5f4621342fe11e9219ac11ec9d375f8e2a0c164539e0d70f6f", size = 9863 },
-]
-
-[[package]]
 name = "python-dotenv"
 version = "1.0.1"
 source = { registry = "https://pypi.org/simple" }
@@ -663,13 +634,4 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/4b/4d/938bd85e5bf2edeec766267a5015ad969730bb91e31b44021dfe8b22df6c/uvicorn-0.34.0.tar.gz", hash = "sha256:404051050cd7e905de2c9a7e61790943440b3416f49cb409f965d9dcd0fa73e9", size = 76568 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/61/14/33a3a1352cfa71812a3a21e8c9bfb83f60b0011f5e36f2b1399d51928209/uvicorn-0.34.0-py3-none-any.whl", hash = "sha256:023dc038422502fa28a09c7a30bf2b6991512da7dcdb8fd35fe57cfc154126f4", size = 62315 },
-]
-
-[[package]]
-name = "validators"
-version = "0.34.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/64/07/91582d69320f6f6daaf2d8072608a4ad8884683d4840e7e4f3a9dbdcc639/validators-0.34.0.tar.gz", hash = "sha256:647fe407b45af9a74d245b943b18e6a816acf4926974278f6dd617778e1e781f", size = 70955 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/6e/78/36828a4d857b25896f9774c875714ba4e9b3bc8a92d2debe3f4df3a83d4f/validators-0.34.0-py3-none-any.whl", hash = "sha256:c804b476e3e6d3786fa07a30073a4ef694e617805eb1946ceee3fe5a9b8b1321", size = 43536 },
 ]

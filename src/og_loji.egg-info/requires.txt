@@ -1,0 +1,7 @@
+aiosqlite>=0.20.0
+fastapi>=0.115.6
+minio>=7.2.13
+playwright>=1.49.1
+pydantic-settings>=2.7.0
+python-json-logger>=3.2.1
+uvicorn>=0.34.0

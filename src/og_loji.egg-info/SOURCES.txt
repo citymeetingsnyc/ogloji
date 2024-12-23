@@ -1,0 +1,8 @@
+README.md
+pyproject.toml
+src/og_loji.egg-info/PKG-INFO
+src/og_loji.egg-info/SOURCES.txt
+src/og_loji.egg-info/dependency_links.txt
+src/og_loji.egg-info/requires.txt
+src/og_loji.egg-info/top_level.txt
+src/ogloji/__init__.py

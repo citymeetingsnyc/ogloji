@@ -16,7 +16,6 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "pytest-minio-mock>=0.4.16",
     "pytest>=8.3.4",
     "httpx>=0.28.1",
     "requests>=2.32.3",
