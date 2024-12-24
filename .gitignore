@@ -3,3 +3,6 @@ og-loji-images/
 .DS_Store
 *.egg-info/
 *.pyc
+
+.env
+logs/
