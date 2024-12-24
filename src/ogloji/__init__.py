@@ -164,10 +164,30 @@ async def generate_image(path: str, filename: str) -> str:
         page = await context.new_page()
         logger.info(f"Navigating to {get_settings().BASE_URL + path}")
         await page.goto(get_settings().BASE_URL + path)
-        await page.wait_for_selector("#og-image", state="visible")
-        fullpath = os.path.join(get_settings().LOCAL_STORAGE_PATH, filename)
+
+        # First try to find the element without waiting for visibility
         el = await page.query_selector("#og-image")
-        await el.screenshot(path=fullpath)
+        if not el:
+            raise Exception("Could not find #og-image element")
+
+        # Execute JavaScript to ensure the element is visible and at the top
+        await page.evaluate("""() => {
+            const ogImage = document.getElementById('og-image');
+            if (ogImage) {
+                ogImage.style.display = 'block';
+                document.body.insertBefore(ogImage, document.body.firstChild);
+            }
+        }""")
+
+        # Small delay to allow for any animations/transitions
+        await page.wait_for_timeout(300)
+
+        # Take the screenshot of the viewport
+        fullpath = os.path.join(get_settings().LOCAL_STORAGE_PATH, filename)
+        await page.screenshot(
+            path=fullpath, clip={"x": 0, "y": 0, "width": 1200, "height": 630}
+        )
+
         await context.close()
         return filename
     finally:
