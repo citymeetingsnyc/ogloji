@@ -69,12 +69,13 @@ class Settings(BaseSettings):
 
     # Base URL configuration
     BASE_URL: str = Field(
-        description="Base URL for the website to generate OG images from"
+        description="Base URL for the website to generate OG images from",
     )
 
     # Local storage configuration
     LOCAL_STORAGE_PATH: str = Field(
-        default="./og-loji-images", description="Directory to store images locally"
+        default="./ogloji-images",
+        description="Directory to store images locally",
     )
 
     LOCAL_STORAGE_CAPACITY_MB: int = Field(
