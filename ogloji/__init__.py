@@ -174,7 +174,10 @@ async def generate_image(path: str, filename: str) -> str:
         await page.evaluate("""() => {
             const ogImage = document.getElementById('og-image');
             if (ogImage) {
-                ogImage.style.display = 'block';
+                const computedStyle = window.getComputedStyle(ogImage);
+                if (computedStyle.display === 'none') {
+                    ogImage.style.display = 'block';
+                }
                 document.body.insertBefore(ogImage, document.body.firstChild);
             }
         }""")
