@@ -114,7 +114,7 @@ class BrowserPool:
         """
         self.playwright = await async_playwright().start()
         for _ in range(self.size):
-            browser = await self.playwright.chromium.launch(headless=True)
+            browser = await self.playwright.firefox.launch(headless=True)
             self.pool.put_nowait(browser)
 
     async def acquire(self) -> Browser:
