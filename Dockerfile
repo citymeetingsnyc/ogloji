@@ -14,7 +14,7 @@ ENV PATH="/root/.local/bin/:$PATH"
 
 WORKDIR /app
 
-RUN uv tool install ogloji@0.1.10
+RUN uv tool install ogloji@0.1.11
 RUN uv tool install playwright
 RUN uv tool run playwright install-deps
 RUN uv tool run playwright install chromium
