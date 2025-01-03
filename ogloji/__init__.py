@@ -1,25 +1,20 @@
-import os
 import asyncio
+import hashlib
+import logging.config
+import os
+from contextlib import asynccontextmanager
 from typing import List
-
-from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse
-from pydantic import BaseModel, Field
-from pydantic_settings import BaseSettings
-from starlette.status import HTTP_401_UNAUTHORIZED
-
-from playwright._impl._browser import Browser
-from playwright.async_api import async_playwright
+from urllib.parse import parse_qs, urlencode, urlparse
 
 import uvicorn
-
-from contextlib import asynccontextmanager
-
-import logging.config
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import FileResponse
+from playwright._impl._browser import Browser
+from playwright.async_api import async_playwright
+from pydantic import BaseModel, Field
+from pydantic_settings import BaseSettings
 from pythonjsonlogger.json import JsonFormatter
-
-from urllib.parse import urlencode, urlparse, parse_qs
-import hashlib
+from starlette.status import HTTP_401_UNAUTHORIZED
 
 # ====================
 # Logging configuration

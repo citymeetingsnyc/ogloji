@@ -1,18 +1,20 @@
-import pytest
-from fastapi.testclient import TestClient
-from fastapi import FastAPI
-import uvicorn
-from threading import Thread
-import time
-from ogloji import app
-import requests
-import uuid
-from fastapi.responses import Response
+import datetime
 import io
-import imagehash
-from PIL import Image
 import os
+import time
+import uuid
+from threading import Thread
 
+import imagehash
+import pytest
+import requests
+import uvicorn
+from fastapi import FastAPI
+from fastapi.responses import Response
+from fastapi.testclient import TestClient
+from PIL import Image
+
+from ogloji import app
 
 OG_IMAGE_FIXTURE_PATH = os.path.join(os.path.dirname(__file__), "og-image-fixture.png")
 
@@ -104,70 +106,124 @@ def image_equal(image1: bytes, image2: bytes):
     return hash1 == hash2
 
 
+def save_test_images(actual_content, expected_content, test_name):
+    # Create test-output directory if it doesn't exist
+    os.makedirs("test-output", exist_ok=True)
+
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    # Save both images with descriptive names
+    actual_path = f"test-output/{test_name}_actual_{timestamp}.png"
+    expected_path = f"test-output/{test_name}_expected_{timestamp}.png"
+
+    with open(actual_path, "wb") as f:
+        f.write(actual_content)
+    with open(expected_path, "wb") as f:
+        f.write(expected_content)
+
+    return actual_path, expected_path
+
+
 def test_e2e(monkeypatch, tmp_path):
     monkeypatch.setenv("BROWSER_POOL_SIZE", "2")
     monkeypatch.setenv("BASE_URL", "http://localhost:9001")
     monkeypatch.setenv("LOCAL_STORAGE_PATH", str(tmp_path / "images"))
     monkeypatch.setenv("API_KEY", "test_api_key")
     with TestClient(app) as client:
-        # Test the happy path -- an image we know is generated.
-        response = client.get("/og-image/test")
-        assert response.status_code == 200
-        assert response.headers["content-type"] == "image/png"
-        with open(OG_IMAGE_FIXTURE_PATH, "rb") as f:
-            expected_image = f.read()
-        assert image_equal(response.content, expected_image)
+        try:
+            # Test the happy path -- an image we know is generated.
+            response = client.get("/og-image/test")
+            assert response.status_code == 200
+            assert response.headers["content-type"] == "image/png"
+            with open(OG_IMAGE_FIXTURE_PATH, "rb") as f:
+                expected_image = f.read()
+            assert image_equal(response.content, expected_image)
+        except AssertionError as e:
+            save_test_images(response.content, expected_image, "happy_path")
+            raise e
 
-        # The first time we request a random page, it should be generated.
-        response = client.get("/og-image/random")
-        assert response.status_code == 200
-        assert response.headers["content-type"] == "image/png"
-        first_random_image = response.content
+        try:
+            # The first time we request a random page, it should be generated.
+            response = client.get("/og-image/random")
+            assert response.status_code == 200
+            assert response.headers["content-type"] == "image/png"
+            first_random_image = response.content
+        except AssertionError as e:
+            save_test_images(response.content, None, "first_random_page")
+            raise e
 
-        # The second time we request a random page from the same path, it'll
-        # be served from cache, so we should get the same image.
-        response = client.get("/og-image/random")
-        assert response.status_code == 200
-        assert response.headers["content-type"] == "image/png"
-        assert image_equal(response.content, first_random_image)
+        try:
+            # The second time we request a random page from the same path, it'll
+            # be served from cache, so we should get the same image.
+            response = client.get("/og-image/random")
+            assert response.status_code == 200
+            assert response.headers["content-type"] == "image/png"
+            assert image_equal(response.content, first_random_image)
+        except AssertionError as e:
+            save_test_images(response.content, first_random_image, "second_random_page")
+            raise e
 
-        # Purging and re-requesting the random page should generate a new image.
-        response = client.post(
-            "/purge-og-image",
-            json={"request_uris": ["/random"]},
-            headers={"X-API-Key": "test_api_key"},
-        )
-        assert response.status_code == 200
-        response = client.get("/og-image/random")
-        assert response.status_code == 200
-        assert response.headers["content-type"] == "image/png"
-        assert not image_equal(response.content, first_random_image)
+        try:
+            # Purging and re-requesting the random page should generate a new image.
+            response = client.post(
+                "/purge-og-image",
+                json={"request_uris": ["/random"]},
+                headers={"X-API-Key": "test_api_key"},
+            )
+            assert response.status_code == 200
+            response = client.get("/og-image/random")
+            assert response.status_code == 200
+            assert response.headers["content-type"] == "image/png"
+            assert not image_equal(response.content, first_random_image)
+        except AssertionError as e:
+            save_test_images(
+                response.content, first_random_image, "purge_then_request_random_page"
+            )
+            raise e
 
-        # When we add query params, it should be treated as a new image.
-        response = client.get("/og-image/random?a=1&b=2")
-        assert response.status_code == 200
-        assert response.headers["content-type"] == "image/png"
-        assert not image_equal(response.content, first_random_image)
-        first_query_params_image = response.content
+        try:
+            # When we add query params, it should be treated as a new image.
+            response = client.get("/og-image/random?a=1&b=2")
+            assert response.status_code == 200
+            assert response.headers["content-type"] == "image/png"
+            assert not image_equal(response.content, first_random_image)
+            first_query_params_image = response.content
+        except AssertionError as e:
+            save_test_images(response.content, first_random_image, "query_params_order")
+            raise e
 
-        # The order of query params should not matter. We should get the
-        # same image served from cache.
-        response = client.get("/og-image/random?b=2&a=1")
-        assert response.status_code == 200
-        assert response.headers["content-type"] == "image/png"
-        assert image_equal(response.content, first_query_params_image)
+        try:
+            # The order of query params should not matter. We should get the
+            # same image served from cache.
+            response = client.get("/og-image/random?b=2&a=1")
+            assert response.status_code == 200
+            assert response.headers["content-type"] == "image/png"
+            assert image_equal(response.content, first_query_params_image)
+        except AssertionError as e:
+            save_test_images(
+                response.content, first_query_params_image, "query_params_unordered"
+            )
+            raise e
 
-        # When purging, the order of query params should not matter.
-        response = client.post(
-            "/purge-og-image",
-            json={"request_uris": ["/random?b=2&a=1"]},
-            headers={"X-API-Key": "test_api_key"},
-        )
-        assert response.status_code == 200
-        response = client.get("/og-image/random?a=1&b=2")
-        assert response.status_code == 200
-        assert response.headers["content-type"] == "image/png"
-        assert not image_equal(response.content, first_query_params_image)
+        try:
+            # When purging, the order of query params should not matter.
+            response = client.post(
+                "/purge-og-image",
+                json={"request_uris": ["/random?b=2&a=1"]},
+                headers={"X-API-Key": "test_api_key"},
+            )
+            assert response.status_code == 200
+            response = client.get("/og-image/random?a=1&b=2")
+            assert response.status_code == 200
+            assert response.headers["content-type"] == "image/png"
+            assert not image_equal(response.content, first_query_params_image)
+        except AssertionError as e:
+            save_test_images(
+                response.content,
+                first_query_params_image,
+                "purge_then_request_query_params_unordered",
+            )
+            raise e
 
 
 def test_api_key_not_set_always_unauthorized(monkeypatch, tmp_path):

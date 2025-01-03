@@ -1,6 +1,8 @@
-import pytest
 import os
 import time
+
+import pytest
+
 from ogloji import evict_from_local_storage
 
 
