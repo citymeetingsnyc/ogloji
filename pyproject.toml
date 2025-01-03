@@ -19,5 +19,5 @@ dev = ["pytest>=8.3.4", "httpx>=0.28.1", "requests>=2.32.3", "imagehash>=4.3.1"]
 ogloji = "ogloji:main"
 
 [build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
