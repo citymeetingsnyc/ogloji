@@ -17,7 +17,9 @@ from PIL import Image
 from ogloji import app
 
 OG_IMAGE_FIXTURE_PATH = os.path.join(os.path.dirname(__file__), "og-image-fixture.png")
-
+INLINE_FONT_STYLE_PATH = os.path.join(
+    os.path.dirname(__file__), "inline-font-style.html"
+)
 
 # This is the app we're going to take screenshots of OG images from.
 html_app = FastAPI()
@@ -30,11 +32,16 @@ async def up():
 
 @html_app.get("/random")
 async def serve_random_page():
+    with open(INLINE_FONT_STYLE_PATH, "r") as f:
+        inline_font_style = f.read()
     random_uuid = uuid.uuid4()
     return Response(
         content=f"""
     <!DOCTYPE html>
     <html>
+        <head>
+            {inline_font_style}
+        </head>
         <body style="margin: 0;">
             <div id="og-image" style="width: 1200px; height: 630px; background: #f0f0f0; display: flex; justify-content: center; align-items: center;">
                 <span style="font-size: 48px;">Test OG Image {random_uuid}</span>
@@ -48,10 +55,15 @@ async def serve_random_page():
 
 @html_app.get("/{path:path}")
 async def serve_test_page():
+    with open(INLINE_FONT_STYLE_PATH, "r") as f:
+        inline_font_style = f.read()
     return Response(
-        content="""
+        content=f"""
     <!DOCTYPE html>
     <html>
+        <head>
+            {inline_font_style}
+        </head>
         <body style="margin: 0;">
             <div id="og-image" style="width: 1200px; height: 630px; background: #f0f0f0; display: flex; justify-content: center; align-items: center;">
                 <span style="font-size: 48px;">Test OG Image</span>
@@ -95,13 +107,11 @@ def setup_html_server():
 
 
 def image_equal(image1: bytes, image2: bytes):
-    # Convert bytes to PIL Images
     img1 = Image.open(io.BytesIO(image1))
     img2 = Image.open(io.BytesIO(image2))
 
-    # Calculate difference hashes
-    hash1 = imagehash.dhash(img1)
-    hash2 = imagehash.dhash(img2)
+    hash1 = imagehash.phash(img1)
+    hash2 = imagehash.phash(img2)
 
     return hash1 == hash2
 
