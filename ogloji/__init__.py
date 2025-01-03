@@ -359,5 +359,11 @@ async def purge_og_image(req: Request, body: PurgeRequest):
     return {"message": "Images purged successfully"}
 
 
+@app.get("/up")
+async def healthcheck():
+    """Simple healthcheck endpoint that returns 200 OK."""
+    return {"status": "ok"}
+
+
 def main():
     uvicorn.run(app, host="0.0.0.0", port=8080)
