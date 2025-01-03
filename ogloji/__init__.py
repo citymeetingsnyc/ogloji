@@ -323,7 +323,8 @@ async def serve_og_image(request: Request, path: str):
         return FileResponse(local_path)
 
     # Generate new image
-    new_filename = await generate_image(path, filename)
+    full_path = f"{path}?{request.url.query}" if request.url.query else path
+    new_filename = await generate_image(full_path, filename)
 
     return FileResponse(os.path.join(get_settings().LOCAL_STORAGE_PATH, new_filename))
 
