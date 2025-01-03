@@ -38,10 +38,9 @@ jobs:
       - name: Run tests
         run: |
           uv run pytest
-        continue-on-error: true
 
       - name: Upload test artifacts
-        if: hashFiles('test-output/*') != ''
+        if: failure() &&hashFiles('test-output/*') != ''
         uses: actions/upload-artifact@v4
         with:
           name: test-artifacts
