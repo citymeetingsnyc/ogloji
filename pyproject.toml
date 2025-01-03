@@ -1,6 +1,6 @@
 [project]
 name = "ogloji"
-version = "0.1.8"
+version = "0.1.9"
 description = "A straightforward OG image-generating service that screenshots HTML on your website: point it at a div, get social preview images."
 readme = "README.md"
 requires-python = ">=3.13"
