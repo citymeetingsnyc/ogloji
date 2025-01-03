@@ -17,6 +17,6 @@ WORKDIR /app
 RUN uv tool install ogloji@0.1.6
 RUN uv tool install playwright
 RUN uv tool run playwright install-deps
-RUN uv tool run playwright install firefox
+RUN uv tool run playwright install chromium
 
 CMD ["uv", "tool","run", "ogloji"]
