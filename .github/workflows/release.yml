@@ -26,7 +26,7 @@ jobs:
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Build package
-        run: uv build --no-sources
+        run: uv build
 
       - name: Publish to PyPI
         env:
@@ -38,7 +38,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.GHCR_TOKEN }}
 
       - name: Extract metadata for Docker
         id: meta
@@ -48,6 +48,7 @@ jobs:
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -61,3 +62,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           generate_release_notes: true
+          files: |
+            dist/*.whl
+            dist/*.tar.gz
